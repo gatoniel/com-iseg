@@ -12,12 +12,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { python: "3.12", os: "ubuntu-latest", session = "tests" }
-          - { python: "3.13", os: "ubuntu-latest", session = "tests" }
-          - { python: "3.12", os: "windows-latest", session = "tests" }
-          - { python: "3.12", os: "macos-latest", session = "tests" }
-          - { python: "3.12", os: "ubuntu-latest", session = "mypy" }
-          - { python: "3.13", os: "ubuntu-latest", session = "mypy" }
+          - { python: "3.12", os: "ubuntu-latest", session: "tests" }
+          - { python: "3.13", os: "ubuntu-latest", session: "tests" }
+          - { python: "3.12", os: "windows-latest", session: "tests" }
+          - { python: "3.12", os: "macos-latest", session: "tests" }
+          - { python: "3.12", os: "ubuntu-latest", session: "mypy" }
+          - { python: "3.13", os: "ubuntu-latest", session: "mypy" }
 
     steps:
       - uses: actions/checkout@v4
