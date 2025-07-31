@@ -6,7 +6,7 @@ on:
 
 jobs:
   tests:
-    name: ${{ matrix.python }} / ${{ matrix.os }}
+    name: ${{ matrix.session }} ${{ matrix.python }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -34,15 +34,15 @@ jobs:
         run: uv sync --python ${{ matrix.python }} --locked --dev
 
       - name: Run tests
-        if: matrix.session == 'tests'
+        if: ${{ matrix.session == "tests" }}
         run: uv run --python ${{ matrix.python }} --locked --dev coverage --parallel-mode -m pytest tests
 
       - name: Run mypy
-        if: matrix.session == 'mypy'
+        if: ${{ matrix.session == "mypy" }}
         run: uv run --python ${{ matrix.python }} --locked --dev mypy tests src
 
       - name: Upload coverage data
-        if: always() && matrix.session == 'tests'
+        if: ${{ always() && matrix.session == "tests" }}
         uses: actions/upload-artifact@v4
         with:
           name: coverage-data-${{ matrix.python }}-${{ matrix.os }}
