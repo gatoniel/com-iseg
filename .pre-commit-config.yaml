@@ -8,11 +8,16 @@ repos:
       args: [ --fix ]
     # Run the formatter.
     - id: ruff-format
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0  # Use the ref you want to point at
-    hooks:
-      - id: check-added-large-files
-      - id: check-toml
-      - id: check-yaml
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
+- repo: https://github.com/astral-sh/uv-pre-commit
+  # uv version.
+  rev: 0.8.4
+  hooks:
+    - id: uv-lock
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v5.0.0  # Use the ref you want to point at
+  hooks:
+    - id: check-added-large-files
+    - id: check-toml
+    - id: check-yaml
+    - id: end-of-file-fixer
+    - id: trailing-whitespace
