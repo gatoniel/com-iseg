@@ -1,6 +1,10 @@
 # Vim
 *swp
 
+# Test coverage
+.coverage*
+coverage.xml
+
 # Python-generated files
 __pycache__/
 *.py[oc]
