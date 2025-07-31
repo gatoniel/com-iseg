@@ -35,7 +35,7 @@ jobs:
 
       - name: Run tests
         if: ${{ matrix.session == 'tests' }}
-        run: uv run --python ${{ matrix.python }} --locked --dev coverage --parallel-mode -m pytest tests
+        run: uv run --python ${{ matrix.python }} --locked --dev coverage run -m pytest tests
 
       - name: Run mypy
         if: ${{ matrix.session == 'mypy' }}
