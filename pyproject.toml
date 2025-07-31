@@ -37,6 +37,8 @@ dev = [
 
 [tool.coverage.run]
 parallel = true
+source = ["src"]
+relative_files = true
 
 [build-system]
 requires = ["uv_build>=0.8.3,<0.9.0"]
