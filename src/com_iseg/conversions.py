@@ -7,7 +7,12 @@ from scipy.spatial import KDTree
 from tqdm import tqdm
 
 
-def calc_moments_binary(lbl: npt.NDArray[np.bool]) -> npt.NDArray[np.double]:
+def calc_moments_binary(
+    lbl: npt.NDArray[np.bool],
+) -> tuple[
+    npt.NDArray[np.double],
+    npt.NDArray[np.int_],
+]:
     """Calculate center point and coordinates for boolean mask."""
     coordinates = np.argwhere(lbl)
     center_point = np.mean(coordinates, axis=0)
