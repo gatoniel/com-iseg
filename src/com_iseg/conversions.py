@@ -15,7 +15,7 @@ def calc_moments_binary(
 ]:
     """Calculate center point and coordinates for boolean mask."""
     coordinates = np.argwhere(lbl)
-    center_point = np.mean(coordinates, axis=0)
+    center_point = np.mean(coordinates, axis=0).astype(np.float32)
     return center_point, coordinates
 
 
@@ -23,7 +23,7 @@ def lbl_to_local_descriptors(
     lbl: npt.NDArray[np.int_],
 ) -> npt.NDArray[np.double]:
     """Transfer label information into local descriptors, e.g., midpoints."""
-    descriptors = np.zeros(lbl.shape + (1 + lbl.ndim,), dtype=float)
+    descriptors = np.zeros(lbl.shape + (1 + lbl.ndim,), dtype=np.float32)
 
     objects = ndimage.find_objects(lbl)
     for i, obj in enumerate(objects):
@@ -39,10 +39,39 @@ def lbl_to_local_descriptors(
         global_coordinates = coordinates + offset
         inds = tuple(global_coordinates[:, i] for i in range(lbl.ndim))
 
-        descriptors[inds + (slice(1, None),)] = center_point - coordinates
+        descriptors[inds + (slice(1, None),)] = center_point - coordinates.astype(
+            np.float32
+        )
         descriptors[inds + (0,)] = 1.0
 
     return descriptors
+
+
+def mask_bordering_lbls(lbl):
+    mask = np.ones(lbl.shape, dtype=bool)
+
+    objects = ndimage.find_objects(lbl)
+    for j, obj in enumerate(objects):
+        if obj is None:
+            continue
+
+        for i in range(lbl.ndim):
+            if obj[i].start == 0:
+                break
+            if obj[i].stop == lbl.shape[i]:
+                break
+        else:
+            # No break statement -> lbl is not on border
+            continue
+
+        offset = np.array([obj[i].start for i in range(lbl.ndim)])
+        lbl_id = j + 1
+        coordinates = np.argwhere(lbl[obj] == lbl_id)
+        global_coordinates = coordinates + offset
+        inds = tuple(global_coordinates[:, i] for i in range(lbl.ndim))
+
+        mask[inds] = False
+    return mask
 
 
 def local_descriptors_to_lbl(descriptors, max_dist=1):
