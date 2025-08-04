@@ -9,7 +9,7 @@ def test_inversion():
     lbl = np.zeros((size, size), dtype=np.uint8)
     mid = size // 2
     sl = slice(mid, -mid)
-    lbl[sl, sl] = 1
+    lbl[sl, sl] = 2
 
     descriptors = conversions.lbl_to_local_descriptors(lbl)
     new_lbl = conversions.local_descriptors_to_lbl(descriptors)
@@ -24,7 +24,7 @@ def test_mask():
 
     lbl[:4, :4] = 1
     lbl[1:4, 7:8] = 2
-    lbl[8:, 8:] = 3
+    lbl[8:, 8:] = 4
 
     mask = conversions.mask_bordering_lbls(lbl)
 
