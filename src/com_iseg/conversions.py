@@ -23,7 +23,7 @@ def lbl_to_local_descriptors(
     lbl: npt.NDArray[np.int_],
 ) -> npt.NDArray[np.double]:
     """Transfer label information into local descriptors, e.g., midpoints."""
-    descriptors = np.zeros(lbl.shape + (1 + lbl.ndim,), dtype=np.float32)
+    descriptors = np.zeros((1 + lbl.ndim,) + lbl.shape, dtype=np.float32)
 
     objects = ndimage.find_objects(lbl)
     for i, obj in enumerate(objects):
@@ -39,10 +39,10 @@ def lbl_to_local_descriptors(
         global_coordinates = coordinates + offset
         inds = tuple(global_coordinates[:, i] for i in range(lbl.ndim))
 
-        descriptors[inds + (slice(1, None),)] = center_point - coordinates.astype(
-            np.float32
-        )
-        descriptors[inds + (0,)] = 1.0
+        descriptors[(slice(1, None),) + inds] = (
+            center_point - coordinates.astype(np.float32)
+        ).T
+        descriptors[(0,) + inds] = 1.0
 
     return descriptors
 
@@ -76,13 +76,13 @@ def mask_bordering_lbls(lbl):
 
 def local_descriptors_to_lbl(descriptors, max_dist=1):
     """Simple function to calculate label objects from description by offsets."""
-    lbl = np.zeros((descriptors.shape[:-1]), dtype=np.uint16)
+    lbl = np.zeros((descriptors.shape[1:]), dtype=np.uint16)
 
-    global_coordinates = np.argwhere(descriptors[..., 0] > 0)
+    global_coordinates = np.argwhere(descriptors[0, ...] > 0)
 
     inds = tuple(global_coordinates[:, i] for i in range(lbl.ndim))
 
-    coords = descriptors[inds + (slice(1, None),)] + global_coordinates
+    coords = descriptors[(slice(1, None),) + inds].T + global_coordinates
     tree = KDTree(coords)
 
     lbl_id = 1
