@@ -46,7 +46,6 @@ class COMModule(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         inputs, target_probs, target_coms, mask = batch
-        print(inputs.dtype)
         mu, phi, com, sigma = self.unet(inputs)
 
         alpha = mu * phi
