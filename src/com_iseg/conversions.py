@@ -74,11 +74,11 @@ def mask_bordering_lbls(lbl):
     return mask
 
 
-def local_descriptors_to_lbl(descriptors, max_dist=1):
+def local_descriptors_to_lbl(descriptors, max_dist=1, thresh=0.0):
     """Simple function to calculate label objects from description by offsets."""
     lbl = np.zeros((descriptors.shape[1:]), dtype=np.uint16)
 
-    global_coordinates = np.argwhere(descriptors[0, ...] > 0)
+    global_coordinates = np.argwhere(descriptors[0, ...] > thresh)
 
     inds = tuple(global_coordinates[:, i] for i in range(lbl.ndim))
 
