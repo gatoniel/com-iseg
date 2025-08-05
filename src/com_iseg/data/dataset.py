@@ -16,15 +16,15 @@ def create_patches(imgs, coms, lbls, patch_size):
     com_patches = []
     lbl_patches = []
     for img, com, lbl in zip(imgs, coms, lbls):
-        slices = ([] for _ in range(img.ndim))
-        for i in range(img.ndim):
-            startpoints = np.arange(0, img.shape[i] - patch_size[i], patch_size[i] // 2)
+        slices = tuple([] for _ in range(lbl.ndim))
+        for i in range(lbl.ndim):
+            startpoints = np.arange(0, lbl.shape[i] - patch_size[i], patch_size[i] // 2)
             for start in startpoints:
                 slices[i].append(slice(start, start + patch_size[i]))
 
         for sl in product(*slices):
-            img_patches.append(img[sl])
-            com_patches.append(com[sl])
+            img_patches.append(img[(slice(None),) + sl])
+            com_patches.append(com[(slice(None),) + sl])
             lbl_patches.append(lbl[sl])
 
     return (
@@ -50,8 +50,10 @@ class COMDataset(Dataset):
         imgs: list[np.ndarray],
         lbls: list[np.ndarray],
         patch_size: tuple[int, ...],
+        normalize: bool = True,
     ):
-        norm_imgs = [percentile_normalization(img) for img in imgs]
+        if normalize:
+            imgs = [percentile_normalization(img) for img in imgs]
         # TODO: allow for arbitrary input channels
         norm_imgs = [img[np.newaxis, ...] for img in imgs]
 
