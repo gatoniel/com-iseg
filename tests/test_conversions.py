@@ -4,6 +4,44 @@ import numpy as np
 from com_iseg import conversions
 
 
+def test_negative_lbls():
+    size = 12
+    lbl = np.zeros((size, size), dtype=np.int8)
+    start = size // 4
+    sl = slice(start, start + size // 2)
+    lbl[sl, sl] = -1
+
+    descriptors = conversions.lbl_to_local_descriptors(lbl)
+    assert np.all(descriptors == 0.0)
+
+
+def test_probability_of_local_descriptors():
+    size = 12
+    lbl = np.zeros((size, size), dtype=np.uint8)
+    start = size // 4
+    sl = slice(start, start + size // 2)
+    lbl[sl, sl] = 2  # skip lbl = 1 to trigger 'if obj is None'
+
+    descriptors = conversions.lbl_to_local_descriptors(lbl)
+    np.testing.assert_array_equal(lbl == 2, descriptors[0] == 1.0)
+
+
+def test_local_descriptors():
+    size = 12
+    lbl = np.zeros((size, size), dtype=np.uint8)
+    start = size // 4
+    sl = slice(start, start + size // 2)
+    lbl[sl, sl] = 2  # skip lbl = 1 to trigger 'if obj is None'
+
+    descriptors = conversions.lbl_to_local_descriptors(lbl)
+
+    inds_foreground = np.any(descriptors[1:] != 0.0, axis=0)
+    assert np.all(descriptors[0, inds_foreground] == 1.0)
+
+    inds_background = descriptors[0] == 0.0
+    assert np.all(descriptors[1:, inds_background] == 0.0)
+
+
 def test_inversion():
     size = 12
     lbl = np.zeros((size, size), dtype=np.uint8)
