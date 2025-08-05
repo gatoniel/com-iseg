@@ -66,9 +66,10 @@ class COMDataset(Dataset):
             for com_lbl in com_lbls:
                 com_lbl[0] = np.clip(com_lbl[0], clip_eps, 1 - clip_eps)
 
-        self.imgs, self.probs, self.coms, patch_lbls = create_patches(
+        imgs, self.probs, self.coms, patch_lbls = create_patches(
             norm_imgs, com_lbls, lbls, patch_size
         )
+        self.imgs = imgs.astype(np.float32)
         self.masks = get_masks(patch_lbls)
 
     def __len__(self):

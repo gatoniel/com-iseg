@@ -68,6 +68,28 @@ def test_patch_size_COMDataset():
         assert patches[3].shape == patch_size
 
 
+def test_patch_dtype_COMDataset():
+    size = 30
+    lbl = np.zeros((2, size, size, size), dtype=np.int8)
+
+    lbl[0, :4, :4, 10:14] = 1
+    lbl[0, 1:4, 7:8, 10:14] = 2
+    lbl[0, 11:14, 17:18, 10:14] = -3
+    lbl[0, 8:, 8:, 10:14] = 4  # skip lbl = 1 to trigger 'if obj is None'
+
+    lbl[1, 4:8, 10:15, 20:25] = -1
+
+    lbls = [lbl[i] for i in range(2)]
+
+    patch_size = (16, 16, 14)
+    ds = dataset.COMDataset([lbl.astype(float) for lbl in lbls], lbls, patch_size)
+
+    for patches in ds:
+        for patch in patches[:3]:
+            assert patch.dtype == np.float32
+        assert patches[3].dtype == bool
+
+
 def test_tiling_COMDataset():
     size = 30
     lbl = np.zeros((2, size, size, size), dtype=np.int8)
