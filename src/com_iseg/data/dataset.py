@@ -13,6 +13,7 @@ def percentile_normalization(x, bottom=1, up=99.8, eps=1e-20, axis=(0, 1, 2)):
 
 def create_patches(imgs, coms, lbls, patch_size):
     img_patches = []
+    prob_patches = []
     com_patches = []
     lbl_patches = []
     for img, com, lbl in zip(imgs, coms, lbls):
@@ -24,11 +25,13 @@ def create_patches(imgs, coms, lbls, patch_size):
 
         for sl in product(*slices):
             img_patches.append(img[(slice(None),) + sl])
-            com_patches.append(com[(slice(None),) + sl])
+            prob_patches.append(com[(slice(0, 1),) + sl])
+            com_patches.append(com[(slice(1, None),) + sl])
             lbl_patches.append(lbl[sl])
 
     return (
         np.stack(img_patches, axis=0),
+        np.stack(prob_patches, axis=0),
         np.stack(com_patches, axis=0),
         np.stack(lbl_patches, axis=0),
     )
@@ -51,6 +54,7 @@ class COMDataset(Dataset):
         lbls: list[np.ndarray],
         patch_size: tuple[int, ...],
         normalize: bool = True,
+        clip_eps: float | None = 1e-6,
     ):
         if normalize:
             imgs = [percentile_normalization(img) for img in imgs]
@@ -58,7 +62,11 @@ class COMDataset(Dataset):
         norm_imgs = [img[np.newaxis, ...] for img in imgs]
 
         com_lbls = [lbl_to_local_descriptors(lbl) for lbl in lbls]
-        self.imgs, self.coms, patch_lbls = create_patches(
+        if clip_eps:
+            for com_lbl in com_lbls:
+                com_lbl[0] = np.clip(com_lbl[0], clip_eps, 1 - clip_eps)
+
+        self.imgs, self.probs, self.coms, patch_lbls = create_patches(
             norm_imgs, com_lbls, lbls, patch_size
         )
         self.masks = get_masks(patch_lbls)
@@ -67,4 +75,4 @@ class COMDataset(Dataset):
         return len(self.imgs)
 
     def __getitem__(self, idx):
-        return self.imgs[idx], self.coms[idx], self.masks[idx]
+        return self.imgs[idx], self.probs[idx], self.coms[idx], self.masks[idx]

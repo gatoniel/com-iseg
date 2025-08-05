@@ -63,8 +63,9 @@ def test_patch_size_COMDataset():
 
     for patches in ds:
         assert patches[0].shape == (1,) + patch_size
-        assert patches[1].shape == (4,) + patch_size
-        assert patches[2].shape == patch_size
+        assert patches[1].shape == (1,) + patch_size
+        assert patches[2].shape == (3,) + patch_size
+        assert patches[3].shape == patch_size
 
 
 def test_tiling_COMDataset():
@@ -82,17 +83,23 @@ def test_tiling_COMDataset():
 
     patch_size = (16, 16, 14)
     ds = dataset.COMDataset(
-        [lbl.astype(float) for lbl in lbls], lbls, patch_size, normalize=False
+        [lbl.astype(float) for lbl in lbls],
+        lbls,
+        patch_size,
+        normalize=False,
+        clip_eps=None,
     )
 
     for patches in ds:
         # mask is correct
         tmp_lbl = patches[0].astype(int)
         mask = dataset.get_masks(tmp_lbl)
-        np.testing.assert_array_equal(mask[0], patches[2])
+        np.testing.assert_array_equal(mask[0], patches[3])
 
         # lbl and com descriptors are the same?
-        new_lbl = conversions.local_descriptors_to_lbl(patches[1])
+        new_lbl = conversions.local_descriptors_to_lbl(
+            np.concatenate([patches[1], patches[2]], axis=0)
+        )
         lbl_new = {}
         for i, j in zip(tmp_lbl.flatten(), new_lbl.flatten()):
             try:
