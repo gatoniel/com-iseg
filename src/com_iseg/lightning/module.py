@@ -13,7 +13,7 @@ def beta_nll_loss(alpha, beta, y):
 
 
 def masked_loss(loss, mask):
-    return loss.squeeze()[mask.squeeze()].mean()
+    return loss[mask].mean()
 
 
 class LaplaceLoss(nn.Module):
@@ -55,7 +55,7 @@ class COMModule(L.LightningModule):
         nll = beta_nll_loss(alpha, beta, target_probs)
         laplace_loss = self.laplace_loss(com, sigma, target_coms)
 
-        loss = nll + laplace_loss.sum(axis=1)
+        loss = nll[:, 0] + laplace_loss.sum(axis=1)
 
         return masked_loss(loss, mask)
 
