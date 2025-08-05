@@ -6,8 +6,8 @@ from torch.utils.data import Dataset
 from ..conversions import lbl_to_local_descriptors, mask_bordering_lbls
 
 
-def percentile_normalization(x, bottom=1, up=99.8, eps=1e-20):
-    percentiles = np.percentile(x, [bottom, up], keepdims=True)
+def percentile_normalization(x, bottom=1, up=99.8, eps=1e-20, axis=(0, 1, 2)):
+    percentiles = np.percentile(x, [bottom, up], keepdims=True, axis=axis)
     return (x - percentiles[0]) / (percentiles[1] - percentiles[0] + eps)
 
 
