@@ -68,6 +68,20 @@ def test_patch_size_COMDataset():
         assert patches[3].shape == patch_size
 
 
+def test_exactly_one_patch():
+    size = 32
+    lbl = np.zeros((size, size, size), dtype=np.int8)
+
+    patch_size = (size, size, size)
+    ds = dataset.COMDataset([lbl.astype(float)], [lbl], patch_size)
+
+    for patches in ds:
+        assert patches[0].shape == (1,) + patch_size
+        assert patches[1].shape == (1,) + patch_size
+        assert patches[2].shape == (3,) + patch_size
+        assert patches[3].shape == patch_size
+
+
 def test_patch_dtype_COMDataset():
     size = 30
     lbl = np.zeros((2, size, size, size), dtype=np.int8)

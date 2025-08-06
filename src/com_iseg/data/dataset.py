@@ -19,7 +19,9 @@ def create_patches(imgs, coms, lbls, patch_size):
     for img, com, lbl in zip(imgs, coms, lbls):
         slices = tuple([] for _ in range(lbl.ndim))
         for i in range(lbl.ndim):
-            startpoints = np.arange(0, lbl.shape[i] - patch_size[i], patch_size[i] // 2)
+            startpoints = np.arange(
+                0, lbl.shape[i] - patch_size[i] + 1, patch_size[i] // 2
+            )
             for start in startpoints:
                 slices[i].append(slice(start, start + patch_size[i]))
 

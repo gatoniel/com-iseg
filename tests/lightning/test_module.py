@@ -6,7 +6,7 @@ from com_iseg.data import dataset
 
 
 def test_trainer_fast_dev_run():
-    model = module.COMModule()
+    model = module.COMModule(depth=3)
     size = 30
     lbl = np.zeros((2, size, size, size), dtype=np.int8)
 
@@ -32,7 +32,7 @@ def test_trainer_fast_dev_run():
 
 
 def test_trainer_predict():
-    model = module.COMModule()
+    model = module.COMModule(depth=3)
     size = 30
     lbl = np.zeros((2, size, size, size), dtype=np.int8)
 
