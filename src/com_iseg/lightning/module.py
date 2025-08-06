@@ -54,9 +54,16 @@ class COMModule(L.LightningModule):
         nll = beta_nll_loss(alpha, beta, target_probs)
         laplace_loss = self.laplace_loss(com, sigma, target_coms)
 
-        loss = nll[:, 0] + laplace_loss.sum(axis=1)
+        loss = masked_loss(nll[:, 0] + laplace_loss.sum(axis=1), mask)
+        self.log("loss", loss, prog_bar=True)
+        for param in self.unet.parameters():
+            if not torch.all(torch.isfinite(param)):
+                self.log("all_isfinite", 0)
+                break
+        else:
+            self.log("all_isfinite", 1)
 
-        return masked_loss(loss, mask)
+        return loss
 
     def configure_optimizers(self):
         return torch.optim.SGD(self.unet.parameters(), lr=0.1)
