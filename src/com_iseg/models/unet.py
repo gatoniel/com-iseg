@@ -475,10 +475,10 @@ class UNet(nn.Module):
         #     groups=groups,
         # )
 
-        self.logits_activation = nn.Sigmoid()
+        # self.logits_activation = nn.Identity()
         # self.phi_activation = nn.Softplus()
 
-        self.com_activation = nn.Identity()
+        # self.com_activation = nn.Identity()
         # self.sigma_activation = nn.Softplus()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -503,7 +503,8 @@ class UNet(nn.Module):
         # alpha = mu * phi
         # beta = (1.0 - mu) * phi
 
-        com = self.com_activation(self.com_conv(x))
-        logits = self.logits_activation(self.logits_conv(x))
+        # com = self.com_activation(self.com_conv(x))
+        com = self.com_conv(x)
+        logits = self.logits_conv(x)
         # return alpha, beta, com, sigma
         return logits, com
