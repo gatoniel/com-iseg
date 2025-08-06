@@ -55,6 +55,8 @@ class COMModule(L.LightningModule):
             num_channels_init=num_channels_init,
         )
         self.laplace_loss = LaplaceLoss()
+        self.mse_loss = nn.MSELoss(reduction="none")
+        self.logits_loss = nn.BCEWithLogitsLoss(reduction="none")
 
     def predict_step(self, x):
         return self.unet(x)
@@ -62,7 +64,8 @@ class COMModule(L.LightningModule):
     def training_step(self, batch, batch_idx):
         inputs, target_probs, target_coms, mask = batch
         results = self.unet(inputs)
-        alpha, beta, com, sigma = results
+        # alpha, beta, com, sigma = results
+        logits, com = results
         # for i in [com, target_coms]:
         #     i = i.cpu().detach().numpy()
         #     tmpa = i.max(axis=1)[mask.cpu().detach().numpy()]
@@ -80,21 +83,58 @@ class COMModule(L.LightningModule):
         # alpha = mu * phi
         # beta = (1.0 - mu) * phi
 
-        nll = masked_loss(beta_nll_loss(alpha, beta, target_probs)[:, 0], mask)
+        # nll = masked_loss(beta_nll_loss(alpha, beta, target_probs)[:, 0], mask)
         # if not torch.all(torch.isfinite(nll)):
         #     print("non finite value found in nll")
         #     raise ValueError
-        laplace_loss = masked_loss(
-            self.laplace_loss(com, sigma, target_coms).sum(axis=1), mask
-        )
+        # laplace_loss = masked_loss(
+        #     self.laplace_loss(com, sigma, target_coms).sum(axis=1), mask
+        # )
         # if not torch.all(torch.isfinite(laplace_loss)):
         #     print("non finite value found in laplace_loss")
         #     raise ValueError
 
-        loss = nll + 2 * laplace_loss
+        # loss = nll + 2 * laplace_loss
+        # self.log("loss", loss, prog_bar=True)
+        # self.log("nll_loss", nll, prog_bar=True)
+        # self.log("laplace_loss", laplace_loss, prog_bar=True)
+
+        mse_loss = masked_loss(self.mse_loss(com, target_coms).sum(axis=1), mask)
+        logits_loss = masked_loss(self.logits_loss(logits, target_probs)[:, 0], mask)
+        loss = mse_loss + logits_loss
         self.log("loss", loss, prog_bar=True)
-        self.log("nll_loss", nll, prog_bar=True)
-        self.log("laplace_loss", laplace_loss, prog_bar=True)
+        self.log("mse_loss", mse_loss, prog_bar=True)
+        self.log("logits_loss", logits_loss, prog_bar=True)
+
+        z = com.size()[2] // 2
+
+        tensorboard = self.logger.experiment
+        tensorboard.add_image(
+            "inputs",
+            inputs[0, 0, z],
+            dataformats="HW",
+            global_step=self.global_step,
+        )
+        tensorboard.add_image(
+            "mean",
+            torch.sigmoid(logits[0, 0, z]),
+            dataformats="HW",
+            global_step=self.global_step,
+        )
+        for i in range(3):
+            tensorboard.add_image(
+                f"dist_{i}",
+                com[0, i, z],
+                dataformats="HW",
+                global_step=self.global_step,
+            )
+        tensorboard.add_image(
+            "mask",
+            torch.any(mask[0], axis=0),
+            dataformats="HW",
+            global_step=self.global_step,
+        )
+
         # for param in self.unet.parameters():
         #     if not torch.all(torch.isfinite(param)):
         #         self.log("all_isfinite", 0)

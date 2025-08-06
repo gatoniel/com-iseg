@@ -56,7 +56,7 @@ def test_trainer_predict():
     trainer = Trainer()
     predictions = trainer.predict(model=model, dataloaders=loader)
     for prediction in predictions:
-        assert len(prediction) == 4
+        assert len(prediction) == 2
         assert (
             prediction[0].shape
             == (
@@ -69,23 +69,23 @@ def test_trainer_predict():
             prediction[1].shape
             == (
                 1,
-                1,
-            )
-            + patch_size
-        )
-        assert (
-            prediction[2].shape
-            == (
-                1,
                 3,
             )
             + patch_size
         )
-        assert (
-            prediction[3].shape
-            == (
-                1,
-                3,
-            )
-            + patch_size
-        )
+        # assert (
+        #     prediction[2].shape
+        #     == (
+        #         1,
+        #         3,
+        #     )
+        #     + patch_size
+        # )
+        # assert (
+        #     prediction[3].shape
+        #     == (
+        #         1,
+        #         3,
+        #     )
+        #     + patch_size
+        # )

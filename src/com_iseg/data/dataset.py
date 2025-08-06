@@ -56,7 +56,7 @@ class COMDataset(Dataset):
         lbls: list[np.ndarray],
         patch_size: tuple[int, ...],
         normalize: bool = True,
-        clip_eps: float | None = 1e-6,
+        clip_eps: float | None = None,
     ):
         if normalize:
             imgs = [percentile_normalization(img) for img in imgs]
