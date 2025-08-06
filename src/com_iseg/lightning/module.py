@@ -7,9 +7,16 @@ import lightning as L
 from ..models.unet import UNet
 
 
-def beta_nll_loss(alpha, beta, y):
+def beta_nll_loss(alpha, beta, y, eps=1e-6):
     logB = lgamma(alpha) + lgamma(beta) - lgamma(alpha + beta)
-    return -((alpha - 1.0) * torch.log(y) + (beta - 1.0) * torch.log(1.0 - y) - logB)
+    if not torch.all(torch.isfinite(logB)):
+        print("non finite value found in logB")
+        raise ValueError
+    loss = (alpha - 1.0) * torch.log(y) + (beta - 1.0) * torch.log(1.0 - y)
+    if not torch.all(torch.isfinite(loss)):
+        print("non finite value found in beta_nll_loss loss")
+        raise ValueError
+    return -(loss - logB)
 
 
 def masked_loss(loss, mask):
@@ -46,16 +53,31 @@ class COMModule(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         inputs, target_probs, target_coms, mask = batch
-        mu, phi, com, sigma = self.unet(inputs)
+        results = self.unet(inputs)
+        alpha, beta, com, sigma = results
+        for i, res in enumerate(results):
+            if not torch.all(torch.isfinite(res)):
+                print("non finite value found", i)
+                raise ValueError
 
-        alpha = mu * phi
-        beta = (1.0 - mu) * phi
+        # alpha = mu * phi
+        # beta = (1.0 - mu) * phi
 
-        nll = beta_nll_loss(alpha, beta, target_probs)
-        laplace_loss = self.laplace_loss(com, sigma, target_coms)
+        nll = masked_loss(beta_nll_loss(alpha, beta, target_probs)[:, 0], mask)
+        if not torch.all(torch.isfinite(nll)):
+            print("non finite value found in nll")
+            raise ValueError
+        laplace_loss = masked_loss(
+            self.laplace_loss(com, sigma, target_coms).sum(axis=1), mask
+        )
+        if not torch.all(torch.isfinite(laplace_loss)):
+            print("non finite value found in laplace_loss")
+            raise ValueError
 
-        loss = masked_loss(nll[:, 0] + laplace_loss.sum(axis=1), mask)
+        loss = nll + 2 * laplace_loss
         self.log("loss", loss, prog_bar=True)
+        self.log("nll_loss", nll, prog_bar=True)
+        self.log("laplace_loss", laplace_loss, prog_bar=True)
         for param in self.unet.parameters():
             if not torch.all(torch.isfinite(param)):
                 self.log("all_isfinite", 0)

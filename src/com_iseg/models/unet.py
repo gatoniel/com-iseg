@@ -450,13 +450,13 @@ class UNet(nn.Module):
             n2v2=n2v2,
             groups=groups,
         )
-        self.mu_conv = getattr(nn, f"Conv{conv_dims}d")(
+        self.alpha_conv = getattr(nn, f"Conv{conv_dims}d")(
             in_channels=num_channels_init * groups,
             out_channels=1,
             kernel_size=1,
             groups=groups,
         )
-        self.phi_conv = getattr(nn, f"Conv{conv_dims}d")(
+        self.beta_conv = getattr(nn, f"Conv{conv_dims}d")(
             in_channels=num_channels_init * groups,
             out_channels=1,
             kernel_size=1,
@@ -475,8 +475,8 @@ class UNet(nn.Module):
             groups=groups,
         )
 
-        self.mu_activation = nn.Sigmoid()
-        self.phi_activation = nn.Softplus()
+        self.alpha_activation = nn.Softplus()
+        self.beta_activation = nn.Softplus()
         self.sigma_activation = nn.Softplus()
         self.com_activation = nn.Identity()
 
@@ -496,10 +496,8 @@ class UNet(nn.Module):
         """
         encoder_features = self.encoder(x)
         x = self.decoder(*encoder_features)
-        mu = self.mu_activation(self.mu_conv(x))
-        phi = self.phi_activation(self.phi_conv(x)) + 1e-6
-        alpha = mu * phi
-        beta = (1.0 - mu) * phi
+        alpha = self.alpha_activation(self.alpha_conv(x)) + 1
+        beta = self.beta_activation(self.beta_conv(x)) + 1
         com = self.com_activation(self.com_conv(x))
         sigma = self.sigma_activation(self.sigma_conv(x))
         return alpha, beta, com, sigma

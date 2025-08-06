@@ -1,5 +1,9 @@
 # Vim
 *swp
+*swo
+
+# Lightning logs
+lightning_logs
 
 # Test coverage
 .coverage*
