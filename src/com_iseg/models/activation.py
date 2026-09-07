@@ -35,14 +35,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 from collections.abc import Callable
-from typing import Union
 
-import torch.nn as nn
+from torch import nn
 
 from .support import SupportedActivation
 
 
-def get_activation(activation: Union[SupportedActivation, str]) -> Callable:
+def get_activation(activation: SupportedActivation | str) -> Callable:
     """
     Get activation function.
 

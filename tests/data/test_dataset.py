@@ -1,8 +1,9 @@
 """Test COMDataset and its utility functions."""
 
 import numpy as np
-from com_iseg.data import dataset
+
 from com_iseg import conversions
+from com_iseg.data import dataset
 
 
 def test_get_masks():
