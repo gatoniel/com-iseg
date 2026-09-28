@@ -1,8 +1,9 @@
 import numpy as np
-from torch import utils
 from lightning import Trainer
-from com_iseg.lightning import module
+from torch import utils
+
 from com_iseg.data import dataset
+from com_iseg.lightning import module
 
 
 def test_trainer_fast_dev_run():
