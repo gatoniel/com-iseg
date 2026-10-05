@@ -91,8 +91,6 @@ class BaseEnum(Enum, metaclass=_ContainerEnum):
     True
     """
 
-    pass
-
 
 class SupportedActivation(str, BaseEnum):
     """Supported activation functions.

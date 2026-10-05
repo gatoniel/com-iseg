@@ -1,10 +1,10 @@
 """The lightning model defining forward pass and loss calculations."""
 
-import torch
-from torch import lgamma
-from torch import nn
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 import lightning as L
+import torch
+from torch import lgamma, nn
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+
 from ..models.unet import UNet
 
 
