@@ -36,10 +36,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from typing import Union
-
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.nn import functional as F
 
 
@@ -189,7 +187,7 @@ class Conv_Block(nn.Module):
 
 
 def _unpack_kernel_size(
-    kernel_size: Union[tuple[int, ...], int], dim: int
+    kernel_size: tuple[int, ...] | int, dim: int
 ) -> tuple[int, ...]:
     """Unpack kernel_size to a tuple of ints.
 
@@ -215,7 +213,7 @@ def _unpack_kernel_size(
 
 
 def _compute_zero_padding(
-    kernel_size: Union[tuple[int, ...], int], dim: int
+    kernel_size: tuple[int, ...] | int, dim: int
 ) -> tuple[int, ...]:
     """Utility function that computes zero padding tuple.
 
@@ -298,7 +296,7 @@ def get_pascal_kernel_1d(
 
 
 def _get_pascal_kernel_nd(
-    kernel_size: Union[tuple[int, int], int],
+    kernel_size: tuple[int, int] | int,
     norm: bool = True,
     dim: int = 2,
     *,
@@ -465,7 +463,7 @@ class MaxBlurPool(nn.Module):
     def __init__(
         self,
         dim: int,
-        kernel_size: Union[tuple[int, int], int],
+        kernel_size: tuple[int, int] | int,
         stride: int = 2,
         max_pool_size: int = 2,
         ceil_mode: bool = False,
