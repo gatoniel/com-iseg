@@ -1,8 +1,8 @@
 """The functions to convert between lbl map and descriptor fields."""
 
 import numpy as np
-from scipy import ndimage
 from numpy import typing as npt
+from scipy import ndimage
 from scipy.spatial import KDTree
 from tqdm import tqdm
 
