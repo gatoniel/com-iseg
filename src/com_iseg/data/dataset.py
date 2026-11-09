@@ -1,8 +1,10 @@
 """Dataset class to organize training preparation."""
 
 from itertools import product
+
 import numpy as np
 from torch.utils.data import Dataset
+
 from ..conversions import lbl_to_local_descriptors, mask_bordering_lbls
 
 

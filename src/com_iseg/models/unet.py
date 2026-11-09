@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from typing import Any
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from .layers import Conv_Block, MaxBlurPool
 
