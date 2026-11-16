@@ -1,6 +1,7 @@
 """Test the conversions module."""
 
 import numpy as np
+
 from com_iseg import conversions
 
 
